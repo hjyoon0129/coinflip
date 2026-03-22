@@ -1,0 +1,76 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta name="naver-site-verification" content="743c03de66f707b24a8420f48386c5b170c58219" />
+    <meta name="google-site-verification" content="Fh1shrN17qbSjjBzL_enci2xFezGpGah2gQNXx1o8YQ" />
+
+    <meta name="title" content="YOONCOIN">
+    <meta name="subject" content="YOONCOIN leverage training game and strategy arena">
+    <meta name="keywords" content="yooncoin, coin flip, leverage trainer, kelly trainer, crypto game, trading simulator, arena board">
+    <meta name="description" content="Leverage training game and Arena community.">
+
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+    <script src="https://kit.fontawesome.com/2b2d3311be.js" crossorigin="anonymous"></script>
+
+    <title>YOONCOIN</title>
+
+    <style>
+        body {
+            background: #060b16;
+            color: #eef4ff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+        }
+
+        .site-main {
+            min-height: calc(100vh - 68px);
+            padding: 14px 0 20px;
+        }
+
+        .site-container {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .site-alert {
+            border-radius: 12px;
+            background: rgba(255,255,255,.05);
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include "navbar.html" %}
+
+<main class="site-main">
+    <div class="site-container">
+
+
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+</main>
+
+<footer style="height:6px;"></footer>
+
+<script src="{% static 'bootstrap.min.js' %}"></script>
+
+{% block script %}
+{% endblock %}
+
+<!-- 🔥 핵심: 닉네임 강제 설정 모달 -->
+{% if user.is_authenticated and needs_nickname %}
+    {% include "user/edit_nickname.html" %}
+{% endif %}
+
+</body>
+</html>

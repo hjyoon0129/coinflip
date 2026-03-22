@@ -1,0 +1,300 @@
+{% if user.is_authenticated and needs_nickname %}
+<div id="nicknameModal" class="nickname-modal">
+    <div class="nickname-modal__backdrop"></div>
+
+    <div class="nickname-modal__card">
+        <h2 class="nickname-modal__title">Choose Your Nickname</h2>
+        <p class="nickname-modal__desc">
+            Set the nickname to display on the leaderboard<br> before playing.
+        </p>
+
+        <form id="nicknameForm" class="nickname-modal__form">
+            {% csrf_token %}
+            <label for="nicknameInput" class="nickname-modal__label">Nickname</label>
+            <input
+                id="nicknameInput"
+                name="nickname"
+                type="text"
+                maxlength="30"
+                placeholder="Enter your nickname"
+                class="nickname-modal__input"
+                required
+            >
+            <div id="nicknameError" class="nickname-modal__error"></div>
+            <button type="submit" class="nickname-modal__button">Save and Continue</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.nickname-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.nickname-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top center, rgba(255, 204, 77, 0.08), transparent 22%),
+        rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(14px);
+}
+
+.nickname-modal__card {
+    position: relative;
+    width: min(92vw, 430px);
+    padding: 34px 30px 28px;
+    border-radius: 24px;
+    background:
+        linear-gradient(180deg, rgba(11, 18, 34, 0.96) 0%, rgba(7, 12, 24, 0.98) 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+        0 30px 90px rgba(0,0,0,0.72),
+        inset 0 1px 0 rgba(255,255,255,0.04),
+        0 0 0 1px rgba(255, 204, 77, 0.03);
+    color: #e9efff;
+    overflow: hidden;
+}
+
+.nickname-modal__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.03), transparent 34%),
+        radial-gradient(circle at top right, rgba(255, 204, 77, 0.05), transparent 22%);
+    pointer-events: none;
+}
+
+.nickname-modal__title {
+    position: relative;
+    margin: 0 0 10px;
+    font-size: 23px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #f5f7ff;
+}
+
+.nickname-modal__desc {
+    position: relative;
+    margin: 0 0 22px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #96a4c6;
+}
+
+.nickname-modal__form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
+
+.nickname-modal__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #7f8db1;
+    letter-spacing: 0.2px;
+}
+
+.nickname-modal__input {
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015));
+    color: #f3f6ff;
+    padding: 0 16px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .22s ease, box-shadow .22s ease, background .22s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+
+.nickname-modal__input::placeholder {
+    color: #5f6f95;
+}
+
+.nickname-modal__input:hover {
+    border-color: rgba(255,255,255,0.10);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.018));
+}
+
+.nickname-modal__input:focus {
+    border-color: rgba(255, 204, 77, 0.42);
+    box-shadow:
+        0 0 0 1px rgba(255, 204, 77, 0.18),
+        0 0 18px rgba(255, 204, 77, 0.08);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+}
+
+.nickname-modal__error {
+    display: none;
+    width: 100%;
+    margin-top: 2px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #ffbfc7;
+    background: linear-gradient(180deg, rgba(115, 25, 41, 0.26), rgba(82, 19, 31, 0.20));
+    border: 1px solid rgba(255, 107, 129, 0.20);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.nickname-modal__error.is-visible {
+    display: block;
+}
+
+.nickname-modal__button {
+    all: unset;
+    display: inline-block;
+    align-self: flex-start;
+    margin-top: 12px;
+
+    padding: 8px 16px;
+
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+
+    color: #c9d4ff;
+
+    background:
+        linear-gradient(180deg, #1a2236, #0f1524);
+
+    border: 1px solid rgba(120, 150, 255, 0.15);
+    border-radius: 7px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.04),
+        0 3px 8px rgba(0,0,0,0.45);
+
+    cursor: pointer;
+
+    transition: all 0.18s ease;
+}
+
+.nickname-modal__button:hover {
+    transform: translateY(-1px);
+
+    color: #e2e9ff;
+
+    background:
+        linear-gradient(180deg, #243055, #141c34);
+
+    border-color: rgba(120, 150, 255, 0.25);
+
+    box-shadow:
+        0 5px 12px rgba(0,0,0,0.5),
+        0 0 10px rgba(120, 150, 255, 0.15);
+}
+
+.nickname-modal__button:active {
+    transform: translateY(0);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 3px 8px rgba(0,0,0,0.28),
+        0 0 8px rgba(255, 204, 77, 0.08);
+}
+
+@media (max-width: 480px) {
+    .nickname-modal {
+        padding: 16px;
+    }
+
+    .nickname-modal__card {
+        width: 100%;
+        padding: 28px 22px 24px;
+        border-radius: 20px;
+    }
+
+    .nickname-modal__title {
+        font-size: 21px;
+    }
+
+    .nickname-modal__desc {
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .nickname-modal__input {
+        height: 50px;
+    }
+
+    .nickname-modal__button {
+        margin-top: 10px;
+        padding: 5px 11px;
+        font-size: 11.5px;
+        border-radius: 7px;
+    }
+}
+</style>
+
+<script>
+(function () {
+    const form = document.getElementById("nicknameForm");
+    const input = document.getElementById("nicknameInput");
+    const errorBox = document.getElementById("nicknameError");
+
+    if (!form) return;
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        errorBox.textContent = "";
+        errorBox.classList.remove("is-visible");
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("/arena/save-nickname/", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (e) {
+                errorBox.textContent = "Server error.";
+                errorBox.classList.add("is-visible");
+                return;
+            }
+
+            if (data.ok) {
+                window.location.reload();
+                return;
+            }
+
+            if (data.errors && data.errors.nickname && data.errors.nickname.length > 0) {
+                errorBox.textContent = data.errors.nickname[0];
+            } else if (data.error) {
+                errorBox.textContent = data.error;
+            } else {
+                errorBox.textContent = "Failed to save nickname.";
+            }
+        } catch (err) {
+            errorBox.textContent = "Failed to save nickname.";
+        }
+    });
+
+    input.focus();
+})();
+</script>
+{% endif %}

@@ -1,0 +1,644 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#111a34;
+    --panel-2:#182241;
+    --line:rgba(255,255,255,.08);
+    --line-strong:rgba(255,255,255,.14);
+    --text:#eef3ff;
+    --muted:#9aa7c7;
+    --gold:#ffcc66;
+    --danger:#ff7f9f;
+  }
+
+  .arena-form-wrap{
+    max-width: 920px;
+    margin: 24px auto;
+  }
+
+  .arena-form-card{
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px;
+    background:
+      radial-gradient(circle at top left, rgba(73,105,255,.10), transparent 26%),
+      linear-gradient(180deg, rgba(15,23,39,.98), rgba(10,16,32,.98));
+    box-shadow: 0 18px 46px rgba(0,0,0,.28);
+  }
+
+  .arena-form-title{
+    font-weight: 700;
+    color:#f5f8ff;
+    letter-spacing:.08px;
+  }
+
+  .arena-form-sub{
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  .arena-form-card .form-label{
+    font-weight: 700;
+    color:#eef3ff;
+    letter-spacing:.06px;
+  }
+
+  .arena-form-card .form-control{
+    border-radius: 14px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.12);
+    color: var(--text);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.18);
+  }
+
+  .arena-form-card .form-control::placeholder{
+    color:#8ea0c8;
+  }
+
+  .arena-form-card .form-control:focus{
+    border-color: rgba(255,200,120,.35);
+    box-shadow: 0 0 0 2px rgba(255,200,120,.12);
+    background: rgba(255,255,255,.05);
+    color:#fff;
+  }
+
+  .arena-form-card textarea.form-control{
+    min-height: 240px;
+    resize: vertical;
+  }
+
+  .arena-error-box{
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255,120,120,.22);
+    background: rgba(255,80,80,.08);
+    color: #ffd9d9;
+  }
+
+  .arena-form-actions{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+
+  .arena-hint{
+    margin-top: 8px;
+    color: #8ea0c8;
+    font-size: 13px;
+  }
+
+  .image-tools{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .file-input-wrap{
+    position: relative;
+  }
+
+  .file-input-wrap input[type="file"]{
+    display:none;
+  }
+
+  .btn-image-tool,
+  .btn-image-danger{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:42px;
+    padding:0 16px;
+    border-radius:12px;
+    font-weight:700;
+    letter-spacing:.12px;
+    text-decoration:none;
+    cursor:pointer;
+    transition: all .18s ease;
+  }
+
+  .btn-image-tool{
+    color:#fff;
+    border: 1px solid rgba(255,200,120,.28);
+    background:
+      linear-gradient(180deg, #2c3b68 0%, #1b2547 60%, #111a34 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.08),
+      0 8px 20px rgba(0,0,0,.30),
+      0 0 10px rgba(255,200,120,.06);
+  }
+
+  .btn-image-tool:hover{
+    transform: translateY(-1px);
+    box-shadow:
+      0 12px 26px rgba(0,0,0,.38),
+      0 0 14px rgba(255,200,120,.14);
+  }
+
+  .btn-image-danger{
+    color:#ffd7e0;
+    border: 1px solid rgba(255,127,159,.24);
+    background: linear-gradient(180deg, rgba(255,127,159,.12), rgba(255,127,159,.06));
+  }
+
+  .btn-image-danger:hover{
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, rgba(255,127,159,.18), rgba(255,127,159,.08));
+    border-color: rgba(255,127,159,.34);
+  }
+
+  .image-preview-panel{
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+  }
+
+  .image-preview-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom: 12px;
+  }
+
+  .image-preview-title{
+    font-size: 13px;
+    font-weight: 700;
+    color:#eef3ff;
+  }
+
+  .image-preview-meta{
+    font-size: 12px;
+    color:#9aa7c7;
+    word-break:break-all;
+  }
+
+  .image-preview-wrap{
+    display:none;
+  }
+
+  .image-preview-wrap.show{
+    display:block;
+  }
+
+  .image-preview{
+    width:100%;
+    max-width: 640px;
+    max-height: 460px;
+    display:block;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.02);
+    object-fit: contain; /* 잘림 방지 */
+    margin: 0 auto;
+  }
+
+  .image-empty-note{
+    color:#8ea0c8;
+    font-size:13px;
+    margin-top:10px;
+  }
+
+  .btn-primary,
+  .btn-update{
+    border-radius: 12px;
+    min-height: 44px;
+    padding: 0 18px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    color: #fff !important;
+    border: 1px solid rgba(255,200,120,.35);
+    background:
+      linear-gradient(180deg, #2c3b68 0%, #1b2547 60%, #111a34 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.08),
+      0 10px 28px rgba(0,0,0,.45),
+      0 0 12px rgba(255,200,120,.08);
+    transition: .2s;
+  }
+
+  .btn-primary:hover,
+  .btn-update:hover{
+    transform: translateY(-2px);
+    box-shadow:
+      0 14px 36px rgba(0,0,0,.55),
+      0 0 18px rgba(255,200,120,.18);
+  }
+
+  .btn-primary:active,
+  .btn-update:active{
+    transform: translateY(0);
+    filter: brightness(.96);
+  }
+
+  .btn-outline-secondary{
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.15);
+    color: #cfd7ff;
+    background: rgba(255,255,255,.03);
+  }
+
+  .btn-outline-secondary:hover{
+    background: rgba(255,255,255,.06);
+    color:#fff;
+  }
+
+  @media (max-width:768px){
+    .arena-form-wrap{
+      margin: 16px auto;
+    }
+
+    .arena-form-card{
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .arena-form-title{
+      font-size: 20px;
+    }
+
+    .arena-form-card textarea.form-control{
+      min-height: 200px;
+    }
+
+    .arena-form-actions{
+      flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-update{
+      width:100%;
+    }
+
+    .image-preview{
+      max-width:100%;
+      max-height:320px;
+    }
+  }
+</style>
+
+<div class="container arena-form-wrap">
+  <div class="arena-form-card">
+    <h5 class="border-bottom pb-2 mb-2 arena-form-title">
+      {% if question %}
+        Edit Post
+      {% else %}
+        Write Post
+      {% endif %}
+    </h5>
+
+    <div class="arena-form-sub">
+      Share your strategy, feedback, or results with the Arena community.
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="remove_image" id="remove_image" value="0">
+
+      {% if form.errors %}
+      <div class="arena-error-box" role="alert">
+        <strong>Please check the fields below.</strong>
+        <div class="mt-2">
+          {% for field in form %}
+            {% if field.errors %}
+              <div class="mb-1">
+                <strong>{{ field.label }}</strong> {{ field.errors }}
+              </div>
+            {% endif %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <div class="mb-1">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="mb-3">
+        <label for="subject" class="form-label">Title</label>
+        <input
+          type="text"
+          class="form-control"
+          name="subject"
+          id="subject"
+          placeholder="Enter your post title"
+          value="{{ form.subject.value|default_if_none:'' }}">
+      </div>
+
+      <div class="mb-3">
+        <label for="content" class="form-label">Content</label>
+        <textarea
+          class="form-control"
+          name="content"
+          id="content"
+          rows="10"
+          placeholder="Write your post here">{{ form.content.value|default_if_none:'' }}</textarea>
+        <div class="arena-hint">
+          Posts with clear details tend to get more replies and votes.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Image</label>
+
+        <div class="file-input-wrap">
+          <input
+            type="file"
+            name="image"
+            id="image"
+            accept="image/*">
+
+          <div class="image-tools">
+            <label for="image" class="btn-image-tool" id="btnChooseImage">
+              {% if question and question.image %}
+                Replace Image
+              {% else %}
+                Choose Image
+              {% endif %}
+            </label>
+
+            <button type="button" class="btn-image-danger" id="btnClearSelected" style="display:none;">
+              Clear Selected
+            </button>
+
+            {% if question and question.image %}
+              <button type="button" class="btn-image-danger" id="btnRemoveCurrent">
+                Delete Current Image
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="arena-hint">
+          You can upload a screenshot, chart, or result image.
+        </div>
+
+        <div class="image-preview-panel">
+          <div class="image-preview-head">
+            <div class="image-preview-title" id="previewTitle">
+              {% if question and question.image %}
+                Current image
+              {% else %}
+                Image preview
+              {% endif %}
+            </div>
+            <div class="image-preview-meta" id="previewMeta">
+              {% if question and question.image %}
+                {{ question.image.name|default:"Attached image" }}
+              {% else %}
+                No image selected
+              {% endif %}
+            </div>
+          </div>
+
+          <div id="imagePreviewWrap" class="image-preview-wrap {% if question and question.image %}show{% endif %}">
+            <img
+              id="imagePreview"
+              class="image-preview"
+              {% if question and question.image %}
+                src="{{ question.image.url }}"
+              {% endif %}
+              alt="Preview">
+          </div>
+
+          <div class="image-empty-note" id="imageEmptyNote" {% if question and question.image %}style="display:none;"{% endif %}>
+            No image selected.
+          </div>
+        </div>
+      </div>
+
+      <div class="arena-form-actions">
+        <button type="submit" class="btn btn-primary btn-update">
+          {% if question %}
+            Update
+          {% else %}
+            Publish
+          {% endif %}
+        </button>
+
+        <a href="{% if question %}{% url 'arena:detail' question.id %}{% else %}{% url 'arena:index' %}{% endif %}" class="btn btn-outline-secondary">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+  (function () {
+    const imageInput = document.getElementById('image');
+    const previewWrap = document.getElementById('imagePreviewWrap');
+    const previewImg = document.getElementById('imagePreview');
+    const previewMeta = document.getElementById('previewMeta');
+    const previewTitle = document.getElementById('previewTitle');
+    const emptyNote = document.getElementById('imageEmptyNote');
+    const removeImageInput = document.getElementById('remove_image');
+    const btnClearSelected = document.getElementById('btnClearSelected');
+    const btnRemoveCurrent = document.getElementById('btnRemoveCurrent');
+    const btnChooseImage = document.getElementById('btnChooseImage');
+
+    if (!imageInput || !previewWrap || !previewImg) return;
+
+    const existingImageUrl = previewImg.getAttribute('src') || '';
+    const existingImageName = previewMeta ? previewMeta.textContent.trim() : '';
+
+    function showPreview(src, metaText, titleText) {
+      previewImg.src = src;
+      previewWrap.classList.add('show');
+      emptyNote.style.display = 'none';
+      if (previewMeta) previewMeta.textContent = metaText || '';
+      if (previewTitle) previewTitle.textContent = titleText || 'Image preview';
+    }
+
+    function hidePreview(metaText, titleText) {
+      previewImg.removeAttribute('src');
+      previewWrap.classList.remove('show');
+      emptyNote.style.display = 'block';
+      if (previewMeta) previewMeta.textContent = metaText || 'No image selected';
+      if (previewTitle) previewTitle.textContent = titleText || 'Image preview';
+    }
+
+    function resetToExistingImage() {
+      if (existingImageUrl) {
+        showPreview(existingImageUrl, existingImageName || 'Current image', 'Current image');
+        removeImageInput.value = '0';
+        if (btnClearSelected) btnClearSelected.style.display = 'none';
+        if (btnRemoveCurrent) btnRemoveCurrent.style.display = 'inline-flex';
+        if (btnChooseImage) btnChooseImage.textContent = 'Replace Image';
+      } else {
+        hidePreview('No image selected', 'Image preview');
+        removeImageInput.value = '0';
+        if (btnClearSelected) btnClearSelected.style.display = 'none';
+        if (btnChooseImage) btnChooseImage.textContent = 'Choose Image';
+      }
+    }
+
+    imageInput.addEventListener('change', function (event) {
+      const file = event.target.files && event.target.files[0];
+
+      if (!file) {
+        resetToExistingImage();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        showPreview(e.target.result, file.name, 'Selected image');
+        removeImageInput.value = '0';
+        if (btnClearSelected) btnClearSelected.style.display = 'inline-flex';
+        if (btnRemoveCurrent) btnRemoveCurrent.style.display = existingImageUrl ? 'inline-flex' : 'none';
+        if (btnChooseImage) btnChooseImage.textContent = 'Replace Image';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (btnClearSelected) {
+      btnClearSelected.addEventListener('click', function () {
+        imageInput.value = '';
+        resetToExistingImage();
+      });
+    }
+
+    if (btnRemoveCurrent) {
+      btnRemoveCurrent.addEventListener('click', function () {
+        imageInput.value = '';
+        removeImageInput.value = '1';
+        hidePreview('Current image will be deleted on update', 'Image removed');
+        btnRemoveCurrent.style.display = 'none';
+        if (btnClearSelected) btnClearSelected.style.display = 'none';
+        if (btnChooseImage) btnChooseImage.textContent = 'Choose New Image';
+      });
+    }
+
+    if (!existingImageUrl) {
+      hidePreview('No image selected', 'Image preview');
+    }
+  })();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const raw = sessionStorage.getItem("arenaShareDraft");
+  if (!raw) return;
+
+  let draft;
+  try {
+    draft = JSON.parse(raw);
+  } catch (e) {
+    console.error("arenaShareDraft parse error:", e);
+    return;
+  }
+
+  const subjectInput =
+    document.querySelector('input[name="subject"]') ||
+    document.getElementById("id_subject");
+
+  const contentInput =
+    document.querySelector('textarea[name="content"]') ||
+    document.getElementById("id_content");
+
+  const imageInput =
+    document.querySelector('input[type="file"][name="image"]') ||
+    document.getElementById("id_image");
+
+  const previewWrap =
+    document.querySelector(".image-preview-wrap");
+
+  const previewImg =
+    document.querySelector(".image-preview");
+
+  const previewMeta =
+    document.querySelector(".image-preview-meta");
+
+  const emptyNote =
+    document.querySelector(".image-empty-note");
+
+  if (subjectInput && draft.subject && !subjectInput.value.trim()) {
+    subjectInput.value = draft.subject;
+    subjectInput.dispatchEvent(new Event("input", { bubbles: true }));
+    subjectInput.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  if (contentInput && draft.content && !contentInput.value.trim()) {
+    contentInput.value = draft.content;
+    contentInput.dispatchEvent(new Event("input", { bubbles: true }));
+    contentInput.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  if (imageInput && draft.imageBase64) {
+    try {
+      const file = dataURLToFile(draft.imageBase64, "yooncoin-card.png");
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      imageInput.files = dt.files;
+      imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+      if (previewImg) {
+        previewImg.src = draft.imageBase64;
+        previewImg.alt = "YOONCOIN result image";
+      }
+
+      if (previewWrap) {
+        previewWrap.classList.add("show");
+      }
+
+      if (previewMeta) {
+        previewMeta.textContent = `${file.name} · ${formatBytes(file.size)}`;
+      }
+
+      if (emptyNote) {
+        emptyNote.style.display = "none";
+      }
+    } catch (e) {
+      console.error("image autofill error:", e);
+    }
+  }
+
+  sessionStorage.removeItem("arenaShareDraft");
+});
+
+function dataURLToFile(dataUrl, filename) {
+  const parts = dataUrl.split(",");
+  if (parts.length < 2) {
+    throw new Error("Invalid data URL");
+  }
+
+  const mimeMatch = parts[0].match(/:(.*?);/);
+  if (!mimeMatch) {
+    throw new Error("Cannot detect mime type");
+  }
+
+  const mime = mimeMatch[1];
+  const binary = atob(parts[1]);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return new File([bytes], filename, { type: mime });
+}
+
+function formatBytes(bytes) {
+  if (!bytes && bytes !== 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+</script>
+
+
+
+
+{% endblock %}
