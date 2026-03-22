@@ -2738,7 +2738,7 @@
         <button class="rm-tab active" data-tab="summary" type="button">Summary</button>
         <button class="rm-tab" data-tab="analysis" type="button">Analysis</button>
         <button class="rm-tab" data-tab="leaderboard" type="button">Leaderboard</button>
-        <button class="rm-tab" data-tab="premium" type="button">Subscribe</button>
+        <button class="rm-tab active" data-tab="premium" type="button">Subscribe</button>
       </div>
 
       <div class="rm-body">
@@ -3072,9 +3072,9 @@
 
     let quota = 3;
     let usedToday = 0;
-    let remainingToday = 0;
+    let remainingToday = 3;
     let isPaid = false;
-    let isAuthed = false;
+    let isAuthed = {{ request.user.is_authenticated|yesno:"true,false" }};
     let isOverride = false;
 
     let runConsumed = false;
@@ -3453,17 +3453,86 @@
       if (!isAuthed){
         extra = `<a class="btnPay" href="/accounts/google/login/">✅ Login</a>`;
       } else if (!isPaid && !isOverride){
-        extra = `<a class="btnPay" href="https://YOUR-LEMONSQUEEZY-PRO-CHECKOUT-URL" target="_blank" rel="noopener">⭐ Subscribe</a>`;
+        extra = `<button class="btnPay" id="openSubscribeTabBtn" type="button">⭐ Subscribe</button>`;
       }
       lockBtns.innerHTML = `${extra}${closeBtnHtml}`;
+
       const newClose = document.getElementById("lockCloseBtn");
-      newClose.addEventListener("click", hideLock);
+      if (newClose) {
+        newClose.addEventListener("click", hideLock);
+      }
+
+      const openSubscribeTabBtn = document.getElementById("openSubscribeTabBtn");
+      if (openSubscribeTabBtn) {
+        openSubscribeTabBtn.addEventListener("click", () => {
+          hideLock();
+          openResultModalToPremium();
+        });
+      }
     }
 
-    async function refreshQuotaFromServer(){
-      try{
-        const res = await fetch(API_CAN_PLAY, { credentials:"same-origin" });
+    function openResultModalToPremium(){
+      if (resultModal) {
+        resultModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      if (typeof switchResultTab === "function") {
+        switchResultTab("premium");
+        return;
+      }
+
+      // switchResultTab 함수가 없을 경우 대비한 수동 처리
+      const tabs = document.querySelectorAll("#rmTabs .rm-tab");
+      tabs.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === "premium");
+      });
+
+      const panels = [
+        document.getElementById("summaryTab"),
+        document.getElementById("analysisTab"),
+        document.getElementById("leaderboardTab"),
+        document.getElementById("premiumTab"),
+      ];
+
+      panels.forEach(panel => {
+        if (!panel) return;
+        const isPremium = panel.id === "premiumTab";
+        panel.style.display = isPremium ? "" : "none";
+        panel.classList.toggle("hiddenTab", !isPremium);
+      });
+    }
+
+    function updateResultPanelLocks(){
+      const shouldLockReport = !isAuthed;
+      [summaryTab, analysisTab].forEach(panel => {
+        if (!panel) return;
+        panel.classList.toggle("locked", shouldLockReport);
+      });
+
+      if (leaderboardTab) {
+        leaderboardTab.classList.remove("locked");
+      }
+      if (premiumTab) {
+        premiumTab.classList.remove("locked");
+      }
+    }
+
+    let isRefreshing = false;
+
+    async function refreshQuotaFromServer() {
+      if (isRefreshing) return false;
+      isRefreshing = true;
+
+      try {
+        const res = await fetch(API_CAN_PLAY, { credentials: "same-origin" });
+
+        if (!res.ok) {
+          throw new Error(`API_CAN_PLAY failed: ${res.status}`);
+        }
+
         const data = await res.json();
+        console.log("API_CAN_PLAY:", data);
 
         usedToday = Number(data.used ?? 0);
         quota = Number(data.limit ?? 3);
@@ -3474,13 +3543,44 @@
 
         renderQuota();
         renderLockButtons();
+        updateResultPanelLocks();
         return data.ok !== false;
-      }catch(e){
+      } catch (e) {
+        console.error("refreshQuotaFromServer error:", e);
+        remainingToday = Math.max(0, quota - usedToday);
         renderQuota();
         renderLockButtons();
-        return true;
+        updateResultPanelLocks();
+        return false;
+      } finally {
+        isRefreshing = false;
       }
     }
+
+    refreshQuotaFromServer();
+
+    setInterval(() => {
+      if (!document.hidden) {
+        refreshQuotaFromServer();
+      }
+    }, 5000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        refreshQuotaFromServer();
+      }
+    });
+
+    async function closeSubscribeModal() {
+      subscribeModal.classList.remove("open");
+      await refreshQuotaFromServer();
+    }
+
+
+
+
+
+
 
     async function consumePlayIfNeeded(){
       if (runConsumed) return true;
